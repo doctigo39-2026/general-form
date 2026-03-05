@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lead Form</title>
+  <style>
+    :root{
+      --bg0:#030915;
+      --bg1:#06162d;
+      --card:#071b33cc;
+      --stroke:#0b3a66;
+      --stroke2:#0e5a8f;
+      --text:#e9f3ff;
+      --muted:#a7c4de;
+      --accent:#3cc9ff;
+      --accent2:#2de3c4;
+      --danger:#ff4d6d;
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(60,201,255,.16), transparent 55%),
+        radial-gradient(900px 600px at 80% 40%, rgba(45,227,196,.12), transparent 60%),
+        radial-gradient(800px 500px at 50% 90%, rgba(14,90,143,.18), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      display:grid;
+      place-items:center;
+      padding:28px 16px;
+    }
+
+    /* subtle animated ocean shimmer */
+    .shimmer{
+      position:fixed;
+      inset:-30%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(60,201,255,.10), transparent 35%),
+        radial-gradient(circle at 70% 60%, rgba(45,227,196,.08), transparent 40%),
+        radial-gradient(circle at 45% 75%, rgba(60,201,255,.06), transparent 45%);
+      filter: blur(20px);
+      animation: drift 10s ease-in-out infinite alternate;
+      pointer-events:none;
+      opacity:.9;
+    }
+    @keyframes drift{
+      from{ transform: translate3d(-2%, -1%, 0) scale(1.02) }
+      to  { transform: translate3d( 2%,  1%, 0) scale(1.06) }
+    }
+
+    .wrap{
+      width:min(820px, 100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width:860px){
+      .wrap{ grid-template-columns:1fr; }
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(7,27,51,.86), rgba(4,16,34,.86));
+      border:1px solid rgba(14,90,143,.55);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background: radial-gradient(500px 220px at 15% 0%, rgba(60,201,255,.18), transparent 55%),
+                  radial-gradient(420px 220px at 85% 0%, rgba(45,227,196,.14), transparent 60%),
+                  linear-gradient(90deg, rgba(60,201,255,.10), rgba(45,227,196,.06), rgba(60,201,255,.10));
+      opacity:.55;
+      pointer-events:none;
+      filter: blur(18px);
+    }
+    .card > *{ position:relative; }
+
+    .form-card{ padding:20px; }
+    .side-card{ padding:18px 18px 16px; }
+
+    h1{
+      margin:0 0 6px;
+      font-size:22px;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.35;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:560px){
+      .grid{ grid-template-columns:1fr; }
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+      letter-spacing:.2px;
+    }
+    .field{
+      background: rgba(3, 10, 22, .55);
+      border:1px solid rgba(11,58,102,.75);
+      border-radius:14px;
+      padding:12px 12px;
+      color:var(--text);
+      outline:none;
+      width:100%;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .05s ease;
+    }
+    .field:focus{
+      border-color: rgba(60,201,255,.85);
+      box-shadow: 0 0 0 4px rgba(60,201,255,.15);
+    }
+    .field:invalid[aria-invalid="true"]{
+      border-color: rgba(255,77,109,.85);
+      box-shadow: 0 0 0 4px rgba(255,77,109,.12);
+    }
+
+    textarea.field{
+      resize: vertical;
+      min-height: 96px;
+      line-height:1.35;
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:14px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:650;
+      cursor:pointer;
+      color:#021018;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 30px rgba(60,201,255,.14);
+      transition: transform .08s ease, filter .15s ease, opacity .15s ease;
+      min-width: 180px;
+    }
+    .btn:hover{ filter: brightness(1.03); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .status{
+      font-size:12.5px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      max-width: 360px;
+      line-height:1.35;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:99px;
+      background: rgba(167,196,222,.35);
+      box-shadow: 0 0 0 4px rgba(167,196,222,.08);
+      flex:0 0 auto;
+    }
+    .dot.ok{
+      background: rgba(45,227,196,.9);
+      box-shadow: 0 0 0 4px rgba(45,227,196,.14);
+    }
+    .dot.err{
+      background: rgba(255,77,109,.9);
+      box-shadow: 0 0 0 4px rgba(255,77,109,.14);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(3,10,22,.55);
+      border:1px solid rgba(11,58,102,.75);
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:10px;
+      width:fit-content;
+    }
+    .badge b{ color:var(--text); font-weight:700; }
+
+    .meta{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .meta .item{
+      padding:12px 12px;
+      border-radius:14px;
+      background: rgba(3,10,22,.48);
+      border:1px solid rgba(11,58,102,.65);
+    }
+    .meta .k{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .meta .v{ font-size:13.5px; color:var(--text); line-height:1.35; }
+
+    .hint{
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .small{
+      font-size:11.5px;
+      color:rgba(167,196,222,.85);
+    }
+
+    .req{ color: rgba(60,201,255,.95); font-weight:700; margin-left:4px; }
+  </style>
+</head>
+
+<body>
+  <div class="shimmer"></div>
+
+  <div class="wrap">
+    <!-- FORM -->
+    <div class="card form-card">
+      <h1>Lead Capture</h1>
+      <p class="subtitle">Fill in details. On submit, data is inserted into Supabase.</p>
+
+      <form id="leadForm" novalidate>
+        <div class="grid">
+          <div>
+            <label for="name">Name <span class="req">*</span></label>
+            <input id="name" name="name" class="field" type="text" autocomplete="name" required />
+          </div>
+
+          <div>
+            <label for="phone">Phone number <span class="req">*</span></label>
+            <input id="phone" name="phone" class="field" type="tel" inputmode="numeric"
+                   autocomplete="tel" placeholder="10-digit" required />
+          </div>
+
+          <div style="grid-column:1 / -1">
+            <label for="address">Address <span class="req">*</span></label>
+            <textarea id="address" name="address" class="field" autocomplete="street-address" required></textarea>
+          </div>
+
+          <div>
+            <label for="gender">Gender <span class="req">*</span></label>
+            <select id="gender" name="gender" class="field" required>
+              <option value="" selected disabled>Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pincode">Pincode <span class="req">*</span></label>
+            <input id="pincode" name="pincode" class="field" type="text" inputmode="numeric"
+                   autocomplete="postal-code" placeholder="6-digit" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="submitBtn" class="btn" type="submit">Save to Supabase</button>
+
+          <div class="status" id="status">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">Waiting for submission…</span>
+          </div>
+        </div>
+
+        <div class="hint">
+          <div class="small">
+            Validation: Name, Address, Gender required. Phone accepts 10 digits. Pincode accepts 6 digits.
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- SIDE INFO -->
+    <div class="card side-card">
+      <div class="badge">Storage: <b>Supabase</b> · Insert row</div>
+
+      <div class="meta">
+        <div class="item">
+          <div class="k">Table name</div>
+          <div class="v"><code>leads</code></div>
+        </div>
+        <div class="item">
+          <div class="k">Columns</div>
+          <div class="v">
+            <code>name</code>, <code>address</code>, <code>phone</code>, <code>gender</code>, <code>pincode</code>, <code>created_at</code>
+          </div>
+        </div>
+        <div class="item">
+          <div class="k">Important</div>
+          <div class="v">
+            Do <b>not</b> expose your Supabase <code>service_role</code> key in browser code.
+            Use the <code>anon</code> key with RLS policies that allow inserts.
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">
+        Setup steps are in the code comments at the bottom (SQL + RLS).
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS (UMD build) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // ============================
+    // 1) SUPABASE CONFIG (EDIT)
+    // ============================
+    const SUPABASE_URL = "https://ilqlwfalpphdobjnmvgt.supabase.co"; // <-- change
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlscWx3ZmFscHBoZG9iam5tdmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjU0MTQsImV4cCI6MjA4ODMwMTQxNH0.IXIGeFs4Ewh79VacssoP5LOGXqnjbb4RGmXeGMB5hhU";          // <-- change
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ============================
+    // 2) UI HELPERS
+    // ============================
+    const form = document.getElementById("leadForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusText = document.getElementById("statusText");
+    const statusDot = document.getElementById("statusDot");
+
+    function setStatus(type, text){
+      statusText.textContent = text;
+      statusDot.classList.remove("ok","err");
+      if(type === "ok") statusDot.classList.add("ok");
+      if(type === "err") statusDot.classList.add("err");
+    }
+
+    function digitsOnly(s){ return (s || "").replace(/\D/g, ""); }
+
+    function markInvalid(el, isInvalid){
+      el.setAttribute("aria-invalid", isInvalid ? "true" : "false");
+    }
+
+    // ============================
+    // 3) CLIENT-SIDE VALIDATION
+    // ============================
+    function validate(payload){
+      let ok = true;
+
+      const nameEl = document.getElementById("name");
+      const phoneEl = document.getElementById("phone");
+      const addressEl = document.getElementById("address");
+      const genderEl = document.getElementById("gender");
+      const pincodeEl = document.getElementById("pincode");
+
+      // Required checks
+      const nameOk = payload.name.length >= 2;
+      const addressOk = payload.address.length >= 5;
+      const genderOk = payload.gender.length >= 1;
+
+      // India-style numeric checks (adjust if needed)
+      const phoneOk = /^\d{10}$/.test(payload.phone);
+      const pincodeOk = /^\d{6}$/.test(payload.pincode);
+
+      markInvalid(nameEl, !nameOk);
+      markInvalid(addressEl, !addressOk);
+      markInvalid(genderEl, !genderOk);
+      markInvalid(phoneEl, !phoneOk);
+      markInvalid(pincodeEl, !pincodeOk);
+
+      ok = nameOk && addressOk && genderOk && phoneOk && pincodeOk;
+      return ok;
+    }
+
+    // ============================
+    // 4) SUBMIT -> INSERT
+    // ============================
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setStatus("", "Validating…");
+
+      const payload = {
+        name: (document.getElementById("name").value || "").trim(),
+        address: (document.getElementById("address").value || "").trim(),
+        phone: digitsOnly(document.getElementById("phone").value),
+        gender: (document.getElementById("gender").value || "").trim(),
+        pincode: digitsOnly(document.getElementById("pincode").value)
+      };
+
+      const ok = validate(payload);
+      if(!ok){
+        setStatus("err", "Fix highlighted fields and try again.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus("", "Saving to Supabase…");
+
+      try{
+        const { data, error } = await supabase
+          .from("leads")
+          .insert([payload])
+          .select()
+          .single();
+
+        if(error) throw error;
+
+        setStatus("ok", "Saved. Lead ID: " + (data?.id ?? "OK"));
+        form.reset();
+        // Clear invalid markers after reset
+        ["name","address","phone","gender","pincode"].forEach(id => {
+          const el = document.getElementById(id);
+          if(el) el.setAttribute("aria-invalid","false");
+        });
+      }catch(err){
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus("err", "Insert failed: " + msg);
+      }finally{
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+  <!--
+    ============================
+    SUPABASE SETUP (RUN IN SQL)
+    ============================
+
+    1) Create table:
+    create table if not exists public.leads (
+      id uuid primary key default gen_random_uuid(),
+      name text not null,
+      address text not null,
+      phone text not null,
+      gender text not null,
+      pincode text not null,
+      created_at timestamptz not null default now()
+    );
+
+    2) Enable RLS:
+    alter table public.leads enable row level security;
+
+    3) Allow anonymous inserts ONLY (recommended: add rate limits server-side if needed):
+    create policy "Allow anon insert"
+    on public.leads
+    for insert
+    to anon
+    with check (true);
+
+    Optional (block selects for anon):
+    revoke select on table public.leads from anon;
+    revoke select on table public.leads from authenticated;
+
+    Notes:
+    - Use ONLY the anon key in this HTML.
+    - Never use service_role key in frontend code.
+  -->
+</body>
+</html>
